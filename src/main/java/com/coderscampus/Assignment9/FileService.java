@@ -2,70 +2,133 @@ package com.coderscampus.Assignment9;
 
 import jakarta.annotation.PostConstruct;
 import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
 @Service
 public class FileService {
-
-    private List<Recipe> recipes;
-
-    @Autowired
-    private RecipeParser recipeParser;
-//@Autowired
-//    public FileService(String file) {
-//    }
+    private List<Recipe> recipes = new ArrayList<>();
 
     @PostConstruct
     public void init() {
-        try (InputStream fileContent = getClass().getResourceAsStream("/recipes.txt")) {
-            if (fileContent != null) {
-                this.recipes = recipeParser.parseRecipes(fileContent);
-            } else {
-                System.err.println("Recipe file not found");
+        loadRecipes();
+    }
+
+    public List<Recipe> loadRecipes() {
+        try (Reader in = new FileReader("recipes.txt")) {
+            Iterable<CSVRecord> records = CSVFormat.DEFAULT.withFirstRecordAsHeader().withTrim().parse(in);
+            for (CSVRecord record : records) {
+                Recipe recipe = new Recipe();
+
+                try {
+                    recipe.setCookingMinutes(Integer.parseInt(record.get("Cooking Minutes")));
+                } catch (NumberFormatException e) {
+
+                }
+                try {
+                    recipe.setDairyFree(Boolean.parseBoolean(record.get("Dairy Free")));
+                } catch (IllegalArgumentException e) {
+
+                }
+                try {
+                    recipe.setGlutenFree(Boolean.parseBoolean(record.get("Gluten Free")));
+                } catch (IllegalArgumentException e) {
+
+                }
+                recipe.setInstructions(record.get("Instructions"));
+                try {
+                    recipe.setPreparationMinutes(Double.parseDouble(record.get("Preparation Minutes")));
+                } catch (NumberFormatException e) {
+
+                }
+                try {
+                    recipe.setPricePerServing(Double.parseDouble(record.get("Price Per Serving")));
+                } catch (NumberFormatException e) {
+
+                }
+                try {
+                    recipe.setReadyInMinutes(Integer.parseInt(record.get("Ready In Minutes")));
+                } catch (NumberFormatException e) {
+
+                }
+                try {
+                    recipe.setServings(Integer.parseInt(record.get("Servings")));
+                } catch (NumberFormatException e) {
+
+                }
+                try {
+                    recipe.setSpoonacularScore(Double.parseDouble(record.get("Spoonacular Score")));
+                } catch (NumberFormatException e) {
+
+                }
+                recipe.setTitle(record.get("Title"));
+                try {
+                    recipe.setVegan(Boolean.parseBoolean(record.get("Vegan")));
+                } catch (IllegalArgumentException e) {
+
+                }
+                try {
+                    recipe.setVegetarian(Boolean.parseBoolean(record.get("Vegetarian")));
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
+                }
+
+                recipes.add(recipe);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return recipes;
     }
 
     public List<Recipe> getAllRecipes() {
         return recipes;
     }
 
-    public List<Recipe> getGlutenFreeRecipes() {
-        return recipes.stream()
-                .filter(Recipe::getGlutenFree)
+    public  List<Recipe> getGlutenFreeRecipes() {
+        return recipes.stream().filter(Recipe::getGlutenFree)
                 .collect(Collectors.toList());
     }
 
     public List<Recipe> getVeganRecipes() {
-        return recipes.stream()
-                .filter(Recipe::getVegan)
-                .collect(Collectors.toList());
+        return recipes.stream().filter(Recipe::getVegan).collect(Collectors.toList());
     }
 
     public List<Recipe> getVeganAndGlutenFreeRecipes() {
-        return recipes.stream()
-                .filter(recipe -> recipe.getVegan() && recipe.getGlutenFree())
-                .collect(Collectors.toList());
+        return recipes.stream().filter(r -> r.getVegan() && r.getGlutenFree()).collect(Collectors.toList());
     }
 
     public List<Recipe> getVegetarianRecipes() {
-        return recipes.stream()
-                .filter(Recipe::getVegetarian)
-                .collect(Collectors.toList());
+        return recipes.stream().filter(Recipe::getVegetarian).collect(Collectors.toList());
     }
 }
+
+//    public List<Recipe> getGlutenFreeRecipes() {
+//        return recipes.stream().filter(recipe -> recipe.getGlutenFree()).collect(Collectors.toList());
+//    }
+//    public List<Recipe> getVeganRecipes() {
+//        return recipes.stream().filter(Recipe::isVegan).collect(Collectors.toList());
+//    }
+//
+//    public List<Recipe> getVeganAndGlutenFreeRecipes() {
+//        return recipes.stream().filter(r -> r.isVegan() && r.isGlutenFree()).collect(Collectors.toList());
+//    }
+//
+//    public List<Recipe> getVegetarianRecipes() {
+//        return recipes.stream().filter(Recipe::isVegetarian).collect(Collectors.toList());
+//    }
+
+
+//
+
+
+
+//}
 //@Service
 //@Scope (ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 //
