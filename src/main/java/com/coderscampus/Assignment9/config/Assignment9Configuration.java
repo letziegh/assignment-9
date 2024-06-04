@@ -1,5 +1,6 @@
-package com.coderscampus.Assignment9;
+package com.coderscampus.Assignment9.config;
 
+import com.coderscampus.Assignment9.service.FileService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
