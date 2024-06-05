@@ -29,6 +29,10 @@ public class FileController {
     public List<Recipe> getGlutenFreeRecipes() {
         return fileService.getGlutenFreeRecipes();
     }
+    @GetMapping("/vegetarian")
+    public List<Recipe> getVegetarianRecipes() {
+        return fileService.getVegetarianRecipes();
+    }
 
     @GetMapping("/vegan")
     public List<Recipe> getVeganRecipes() {
