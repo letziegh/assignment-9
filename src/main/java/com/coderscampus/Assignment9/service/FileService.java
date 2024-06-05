@@ -11,6 +11,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
 @Service
 public class FileService {
     private List<Recipe> recipes = new ArrayList<>();
@@ -22,7 +23,21 @@ public class FileService {
 
     public List<Recipe> loadRecipes() {
         try (Reader in = new FileReader("recipes.txt")) {
-            Iterable<CSVRecord> records = CSVFormat.DEFAULT.withFirstRecordAsHeader().withTrim().parse(in);
+            Iterable<CSVRecord> records = CSVFormat.Builder
+                    .create()
+                    .setQuote('"')
+                    .setEscape('\\')
+                    .setEscape('/')
+                    .setEscape('<')
+                    .setEscape('>')
+                    .setEscape('-')
+                    .setEscape('(')
+                    .setEscape(')')
+                    .setEscape('+')
+                    .build()
+                    .withTrim()
+                    .withFirstRecordAsHeader()
+                    .parse(in);
             for (CSVRecord record : records) {
                 Recipe recipe = new Recipe();
 
@@ -34,6 +49,7 @@ public class FileService {
                 try {
                     recipe.setDairyFree(Boolean.parseBoolean(record.get("Dairy Free")));
                 } catch (IllegalArgumentException e) {
+
 
                 }
                 try {
@@ -91,6 +107,7 @@ public class FileService {
         return recipes;
     }
 
+
     public  List<Recipe> getGlutenFreeRecipes() {
         return recipes.stream().filter(Recipe::getGlutenFree)
                 .collect(Collectors.toList());
@@ -126,7 +143,6 @@ public class FileService {
 
 
 //
-
 
 
 //}
@@ -199,7 +215,7 @@ public class FileService {
 //
 
 
-    //    public FileService(String file) {
+//    public FileService(String file) {
 //    }
 
 //    private String fileName;
@@ -234,8 +250,8 @@ public class FileService {
 //            String columnTwelve = record.get(11);
 //            String columnThirteen = record.get(12);
 //        }
-        // System.out.println(records);
-        //return records.toString();
+// System.out.println(records);
+//return records.toString();
 
 
 

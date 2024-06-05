@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 //@RequestMapping("/recipes")
@@ -25,7 +26,8 @@ public class FileController {
         return fileService.getAllRecipes();
     }
 
-    @GetMapping("/gluten-free")
+
+@GetMapping("/gluten-free")
     public List<Recipe> getGlutenFreeRecipes() {
         return fileService.getGlutenFreeRecipes();
     }
@@ -34,7 +36,13 @@ public class FileController {
         return fileService.getVegetarianRecipes();
     }
 
-    @GetMapping("/vegan")
+//    @GetMapping("/vegan")
+//    public List<Recipe> getVeganRecipes() {
+//        return fileService.getAllRecipes().stream()
+//                .filter(recipe -> Boolean.TRUE.equals(recipe.getVegan()))
+//                .collect(Collectors.toList());
+//    }
+@GetMapping("/vegan")
     public List<Recipe> getVeganRecipes() {
         return fileService.getVeganRecipes();
     }
