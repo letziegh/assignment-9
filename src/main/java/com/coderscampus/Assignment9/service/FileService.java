@@ -12,119 +12,116 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.csv.CSVFormat.Builder.create;
+
 @Service
 public class FileService {
     private List<Recipe> recipes = new ArrayList<>();
 
     @PostConstruct
-    public void init() {
+    public void init() throws IOException {
         loadRecipes();
     }
 
-    public List<Recipe> loadRecipes() {
+    public List<Recipe> loadRecipes() throws IOException {
         try (Reader in = new FileReader("recipes.txt")) {
-            Iterable<CSVRecord> records = CSVFormat.Builder
-                    .create()
+            CSVFormat csvFormat = CSVFormat.Builder
+                    .create(CSVFormat.DEFAULT)
                     .setQuote('"')
                     .setEscape('\\')
-                    .setEscape('/')
-                    .setEscape('<')
-                    .setEscape('>')
-                    .setEscape('-')
-                    .setEscape('(')
-                    .setEscape(')')
-                    .setEscape('+')
-                    .build()
-                    .withTrim()
-                    .withFirstRecordAsHeader()
-                    .parse(in);
-            for (CSVRecord record : records) {
-                Recipe recipe = new Recipe();
+                    .setTrim(true)
+                    .setHeader()
+                    .setSkipHeaderRecord(true)
+                    .build();
+            try (CSVParser csvParser = new CSVParser(in, csvFormat)) {
+                for (CSVRecord record : csvParser) {
+                    Recipe recipe = new Recipe();
 
-                try {
-                    recipe.setCookingMinutes(Integer.parseInt(record.get("Cooking Minutes")));
-                } catch (NumberFormatException e) {
+                    try {
+                        recipe.setCookingMinutes(Integer.parseInt(record.get("Cooking Minutes")));
+                    } catch (NumberFormatException e) {
 
+                    }
+                    try {
+                        recipe.setDairyFree(Boolean.parseBoolean(record.get("Dairy Free")));
+                    } catch (IllegalArgumentException e) {
+
+                    }
+                    try {
+                        recipe.setGlutenFree(Boolean.parseBoolean(record.get("Gluten Free")));
+                    } catch (IllegalArgumentException e) {
+
+                    }
+                    recipe.setInstructions(record.get("Instructions"));
+                    try {
+                        recipe.setPreparationMinutes(Double.parseDouble(record.get("Preparation Minutes")));
+                    } catch (NumberFormatException e) {
+
+                    }
+                    try {
+                        recipe.setPricePerServing(Double.parseDouble(record.get("Price Per Serving")));
+                    } catch (NumberFormatException e) {
+
+                    }
+                    try {
+                        recipe.setReadyInMinutes(Integer.parseInt(record.get("Ready In Minutes")));
+                    } catch (NumberFormatException e) {
+
+                    }
+                    try {
+                        recipe.setServings(Integer.parseInt(record.get("Servings")));
+                    } catch (NumberFormatException e) {
+
+                    }
+                    try {
+                        recipe.setSpoonacularScore(Double.parseDouble(record.get("Spoonacular Score")));
+                    } catch (NumberFormatException e) {
+
+                    }
+                    recipe.setTitle(record.get("Title"));
+                    try {
+                        recipe.setVegan(Boolean.parseBoolean(record.get("Vegan")));
+                    } catch (IllegalArgumentException e) {
+
+                    }
+                    try {
+                        recipe.setVegetarian(Boolean.parseBoolean(record.get("Vegetarian")));
+                    } catch (IllegalArgumentException e) {
+                         e.printStackTrace();
+                    }
+
+                    recipes.add(recipe);
                 }
-                try {
-                    recipe.setDairyFree(Boolean.parseBoolean(record.get("Dairy Free")));
-                } catch (IllegalArgumentException e) {
-
-
-                }
-                try {
-                    recipe.setGlutenFree(Boolean.parseBoolean(record.get("Gluten Free")));
-                } catch (IllegalArgumentException e) {
-
-                }
-                recipe.setInstructions(record.get("Instructions"));
-                try {
-                    recipe.setPreparationMinutes(Double.parseDouble(record.get("Preparation Minutes")));
-                } catch (NumberFormatException e) {
-
-                }
-                try {
-                    recipe.setPricePerServing(Double.parseDouble(record.get("Price Per Serving")));
-                } catch (NumberFormatException e) {
-
-                }
-                try {
-                    recipe.setReadyInMinutes(Integer.parseInt(record.get("Ready In Minutes")));
-                } catch (NumberFormatException e) {
-
-                }
-                try {
-                    recipe.setServings(Integer.parseInt(record.get("Servings")));
-                } catch (NumberFormatException e) {
-
-                }
-                try {
-                    recipe.setSpoonacularScore(Double.parseDouble(record.get("Spoonacular Score")));
-                } catch (NumberFormatException e) {
-
-                }
-                recipe.setTitle(record.get("Title"));
-                try {
-                    recipe.setVegan(Boolean.parseBoolean(record.get("Vegan")));
-                } catch (IllegalArgumentException e) {
-
-                }
-                try {
-                    recipe.setVegetarian(Boolean.parseBoolean(record.get("Vegetarian")));
-                } catch (IllegalArgumentException e) {
-                    e.printStackTrace();
-                }
-
-                recipes.add(recipe);
+            } catch (IOException e) {
+                 e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+            return recipes;
         }
-        return recipes;
     }
 
-    public List<Recipe> getAllRecipes() {
-        return recipes;
-    }
+        public List<Recipe> getAllRecipes () {
+            return recipes;
+        }
 
 
-    public  List<Recipe> getGlutenFreeRecipes() {
-        return recipes.stream().filter(Recipe::getGlutenFree)
-                .collect(Collectors.toList());
+        public List<Recipe> getGlutenFreeRecipes () {
+            return recipes.stream().filter(Recipe::getGlutenFree)
+                    .collect(Collectors.toList());
+        }
+
+        public List<Recipe> getVeganRecipes () {
+            return recipes.stream().filter(Recipe::getVegan).collect(Collectors.toList());
+        }
+
+        public List<Recipe> getVeganAndGlutenFreeRecipes () {
+            return recipes.stream().filter(r -> r.getVegan() && r.getGlutenFree()).collect(Collectors.toList());
+        }
+
+        public List<Recipe> getVegetarianRecipes () {
+            return recipes.stream().filter(Recipe::getVegetarian).collect(Collectors.toList());
+        }
     }
 
-    public List<Recipe> getVeganRecipes() {
-        return recipes.stream().filter(Recipe::getVegan).collect(Collectors.toList());
-    }
-
-    public List<Recipe> getVeganAndGlutenFreeRecipes() {
-        return recipes.stream().filter(r -> r.getVegan() && r.getGlutenFree()).collect(Collectors.toList());
-    }
-
-    public List<Recipe> getVegetarianRecipes() {
-        return recipes.stream().filter(Recipe::getVegetarian).collect(Collectors.toList());
-    }
-}
 
 //    public List<Recipe> getGlutenFreeRecipes() {
 //        return recipes.stream().filter(recipe -> recipe.getGlutenFree()).collect(Collectors.toList());
