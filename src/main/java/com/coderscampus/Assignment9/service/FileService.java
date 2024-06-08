@@ -27,11 +27,15 @@ public class FileService {
         try (Reader in = new FileReader("recipes.txt")) {
             CSVFormat csvFormat = CSVFormat.Builder
                     .create(CSVFormat.DEFAULT)
-                    .setQuote('"')
+                   // .setDelimiter(',')
+                    .setQuote('\"')
+                    .setIgnoreSurroundingSpaces(true)
+                    .setIgnoreEmptyLines(true)
                     .setEscape('\\')
                     .setTrim(true)
                     .setHeader()
-                    .setSkipHeaderRecord(true)
+
+                    //.setSkipHeaderRecord(true)
                     .build();
             try (CSVParser csvParser = new CSVParser(in, csvFormat)) {
                 for (CSVRecord record : csvParser) {
@@ -108,10 +112,18 @@ public class FileService {
             return recipes.stream().filter(Recipe::getGlutenFree)
                     .collect(Collectors.toList());
         }
-
-        public List<Recipe> getVeganRecipes () {
-            return recipes.stream().filter(Recipe::getVegan).collect(Collectors.toList());
+    public List<Recipe> getVeganRecipes() {
+        List<Recipe> result = new ArrayList<>();
+        for (Recipe recipe : recipes) {
+            if (recipe.getVegan()) {
+                result.add(recipe);
+            }else ;
         }
+        return result;
+    }
+//        public List<Recipe> getVeganRecipes () {
+//            return recipes.stream().filter(Recipe::getVegan).collect(Collectors.toList());
+//        }
 
         public List<Recipe> getVeganAndGlutenFreeRecipes () {
             return recipes.stream().filter(r -> r.getVegan() && r.getGlutenFree()).collect(Collectors.toList());
