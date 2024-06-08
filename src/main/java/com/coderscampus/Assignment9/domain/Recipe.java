@@ -1,6 +1,6 @@
 package com.coderscampus.Assignment9.domain;
 
-import org.springframework.stereotype.Component;
+
 
 
 public class Recipe {
